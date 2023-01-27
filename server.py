@@ -36,14 +36,37 @@ class MyWebServer(socketserver.BaseRequestHandler):
     
     def handle(self):
         self.data = self.request.recv(1024).strip()
+        self.decoded_data = self.data.decode('utf-8')
         print ("Got a request of: %s\n" % self.data)
-        print("yo:",self.data)
-        response = """HTTP/1.1 200 OK\r\nContent-Length: 538\r\nContent-Location: /www/index.html\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html>\r
-        <head>\n\t<title>Example Page</title>\n\t\t<meta http-equiv="Content-Type"\n\t\tcontent="text/html;charset=utf-8"/>\n\t\t<!-- check conformance at http://validator.w3.org/check -->\n\t\t<link rel="stylesheet" type="text/css" href="base.css">\n\t\t<style type="text/css">\n\t\t\th1 {\n\t\t\tcolor:orange;\n\t\t\ttext-align:center;\n\t\t\t}\n\t\t</style>\n</head>
-        \n<body>\n\t<div class="eg">\n\t\t<h1>An Example Page</h1>\n\t\t<ul>\n\t\t\t<li>It works?\n\t\t\t<li><a href="deep/index.html">A deeper page</a></li>\n\t\t</ul>\n\t</div>\n</body>\n</html>
-        """
-        self.request.sendall(bytearray(response,'utf-8'))
-        # print(response)
+        # print("yo:",self.data)
+        # response = """HTTP/1.1 200 OK\r\nContent-Length: 538\r\nContent-Location: /www/index.html\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html>\r
+        # <head>\n\t<title>Example Page</title>\n\t\t<meta http-equiv="Content-Type"\n\t\tcontent="text/html;charset=utf-8"/>\n\t\t<!-- check conformance at http://validator.w3.org/check -->\n\t\t<link rel="stylesheet" type="text/css" href="base.css">\n\t\t<style type="text/css">\n\t\t\th1 {\n\t\t\tcolor:orange;\n\t\t\ttext-align:center;\n\t\t\t}\n\t\t</style>\n</head>
+        # \n<body>\n\t<div class="eg">\n\t\t<h1>An Example Page</h1>\n\t\t<ul>\n\t\t\t<li>It works?\n\t\t\t<li><a href="deep/index.html">A deeper page</a></li>\n\t\t</ul>\n\t</div>\n</body>\n</html>
+        # """
+ 
+        # self.request.sendall(bytearray(response,'utf-8'))
+
+        # Types of responses
+        OK_200 = "HTTP/1.1 200 OK\r\n"
+        Moved_301 = "HTTP/1.1 301 Moved Permanently\r\n"
+        NotFound_404 = "HTTP/1.1 404 Not Found\r\n\r\n"
+        NotAllowed_405 = "HTTP/1.1 405 Method Not Allowed\r\n\r\n"
+
+        # Gets path url from the decoded data
+        url = self.decoded_data.split()[1]
+        
+        # Webpage display index.html on default
+        if url[-1] == '/':
+            url+='index.html'
+        
+        # Only handle 'GET' requests
+        if self.decoded_data.split()[0] == "GET":
+            pass
+        else:
+            # Status code 405, if requests is other than 'GET'
+            self.request.sendall(bytearray(NotAllowed_405,'utf-8'))
+
+
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
     socketserver.TCPServer.allow_reuse_address = True
