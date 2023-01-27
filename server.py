@@ -28,8 +28,6 @@ import os
 # try: curl -v -X GET http://127.0.0.1:8080/
 
 
-BYTES_TO_READ = 4096
-
 class MyWebServer(socketserver.BaseRequestHandler):
     
     def handle(self):
